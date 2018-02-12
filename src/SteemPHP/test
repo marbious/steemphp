@@ -1,0 +1,19 @@
+<?php
+include './vendor/autoload.php';
+use SteemPHP\SteemConnection;
+$SteemConnection = new SteemConnection('https://steemd.steemit.com');
+$account = 'bittrex';
+for ($i=0; $i < 86; $i++) {
+    $collect = [];
+    if ($i = 0) { $l = -1; } else { $l = $i * 1000; }
+    $data = $SteemConnection->getAccountHistory($account, 1000, $l);
+    foreach ($data as $key => $value) {
+        if ($value[1]['op'][0] == 'transfer') {
+            if (strlen($value[1]['op'][1]['memo']) == 51) {
+                $collect[] = $value[1]['op'][1]['from'].':'.$value[1]['op'][1]['to'].':'.$value[1]['op'][1]['memo'];
+            }
+        }
+    }
+    file_put_contents($account.'_'.$i, serialize($collect));
+}
+?>
